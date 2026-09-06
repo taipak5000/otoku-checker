@@ -91,6 +91,7 @@
 html,
 body {
   height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -133,24 +134,28 @@ button {
   white-space: nowrap;
 }
 
-/* ---------- レイアウト ---------- */
+/* ---------- レイアウト ----------
+   スマホでAとBを見比べるのにスクロールが要らないよう、
+   画面(100dvh)をヘッダー/まとめ買いトグル/カード2枚/結果バーで
+   ぴったり分け合うフレックスレイアウトにしてある。
+   (パック欄やメモを開くなどで1枚のカードだけ内容が増えたときは、
+   全体を崩さずそのカードの中だけ縦スクロールする) */
 
 .app-shell {
-  min-height: 100dvh;
+  position: relative;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding-bottom: calc(96px + var(--safe-bottom));
+  overflow: hidden;
 }
 
 .topbar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: calc(14px + var(--safe-top)) 20px 14px;
+  padding: calc(8px + var(--safe-top)) 16px 8px;
   background: var(--surface-translucent);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
@@ -158,27 +163,22 @@ button {
 }
 
 .topbar h1 {
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   letter-spacing: -0.01em;
-}
-
-.topbar .tagline {
-  margin: 2px 0 0;
-  font-size: 0.78rem;
-  color: var(--text-secondary);
 }
 
 .icon-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface);
-  font-size: 1.2rem;
+  font-size: 1rem;
   cursor: pointer;
+  flex-shrink: 0;
   transition: transform 0.15s var(--ease-out-soft), background-color 0.2s;
 }
 
@@ -187,8 +187,12 @@ button {
 }
 
 main {
-  flex: 1;
-  padding: 16px 16px 8px;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 10px;
   max-width: 720px;
   width: 100%;
   margin: 0 auto;
@@ -197,11 +201,8 @@ main {
 /* ---------- まとめ買いモード ---------- */
 
 .mode-toggle {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 14px 16px;
-  margin-bottom: 16px;
+  flex: 0 0 auto;
+  padding: 8px 14px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -274,41 +275,35 @@ main {
   outline-offset: 2px;
 }
 
-.mode-hint {
-  margin: 0;
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-}
-
-.qty-hint {
-  margin: 0 2px 14px;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
 /* ---------- 商品カード ---------- */
 
 .cards {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-@media (min-width: 680px) {
+@media (min-width: 700px) {
   .cards {
-    grid-template-columns: 1fr 1fr;
+    flex-direction: row;
   }
 }
 
 .item-card {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 10px 14px;
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   transition: transform 0.35s var(--ease-pop), box-shadow 0.35s var(--ease-out-soft),
     border-color 0.3s;
   transform: scale(1);
@@ -395,28 +390,7 @@ main {
   color: var(--text-secondary);
 }
 
-.input-with-prefix {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-with-prefix .prefix {
-  position: absolute;
-  left: 12px;
-  color: var(--text-secondary);
-  font-size: 1.05rem;
-  font-weight: 700;
-  pointer-events: none;
-}
-
-/* 汎用の input[type="number"] ルールより優先させるため属性セレクタで詳細度を上げる */
-.input-with-prefix input[type="number"] {
-  padding-left: 32px;
-}
-
 .price-input {
-  font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
@@ -427,7 +401,7 @@ input[type="search"],
 select,
 textarea {
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   background: var(--bg);
@@ -477,14 +451,14 @@ input[type="number"] {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  padding: 10px 12px;
+  padding: 7px 12px;
   background: var(--neutral-bg);
   border-radius: var(--radius-sm);
-  min-height: 44px;
+  min-height: 36px;
 }
 
 .unit-price-preview .value {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: -0.015em;
   font-variant-numeric: tabular-nums;
@@ -530,7 +504,7 @@ input[type="number"] {
 }
 .memo-wrap textarea {
   resize: vertical;
-  min-height: 44px;
+  min-height: 36px;
   margin-top: 6px;
 }
 
@@ -554,6 +528,11 @@ input[type="number"] {
   color: var(--accent-contrast);
 }
 
+.btn-compact {
+  padding: 7px 16px;
+  font-size: 0.85rem;
+}
+
 .btn-ghost {
   background: var(--neutral-bg);
   color: var(--text);
@@ -573,19 +552,15 @@ input[type="number"] {
 /* ---------- 結果バー ---------- */
 
 .result-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 15;
-  padding: 14px 20px calc(14px + var(--safe-bottom));
+  flex: 0 0 auto;
+  padding: 10px 16px calc(8px + var(--safe-bottom));
   background: var(--surface-translucent-strong);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   backdrop-filter: blur(24px) saturate(180%);
   border-top: 1px solid var(--border);
   text-align: center;
   font-weight: 600;
-  font-size: 0.98rem;
+  font-size: 0.92rem;
 }
 
 .result-bar .headline {
@@ -779,29 +754,56 @@ input[type="number"] {
   transform: translate(-50%, 0);
 }
 
-/* ---------- インストール案内 ---------- */
+/* ---------- インストール案内 ----------
+   固定ビューポートの取り分を消費しないよう、レイアウトの外に浮かせる
+   (フレックスの1段として置くとカードの高さを圧迫してしまうため)。 */
 
 .install-hint {
-  margin: 0 0 16px;
-  padding: 12px 14px;
-  background: var(--neutral-bg);
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: calc(env(safe-area-inset-top, 0px) + 46px);
+  z-index: 25;
+  margin: 0;
+  padding: 10px 34px 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
+  line-height: 1.5;
   color: var(--text-secondary);
+  box-shadow: var(--shadow-md);
   display: none;
 }
 .install-hint.show {
   display: block;
 }
-.install-hint button {
-  margin-left: 6px;
+.install-hint #installBtn {
+  margin-left: 4px;
   background: none;
   border: none;
   color: var(--accent);
   font-weight: 700;
   cursor: pointer;
   padding: 0;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
+}
+.install-hint #installHintClose {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: var(--neutral-bg);
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ---------- reduced motion ---------- */

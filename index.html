@@ -23,36 +23,29 @@
 <body>
 <div class="app-shell">
   <header class="topbar">
-    <div>
-      <h1>おとくチェック</h1>
-      <p class="tagline">価格と容量からどっちがお得かすぐ比較</p>
-    </div>
+    <h1>おとくチェック</h1>
     <button type="button" class="icon-btn" id="historyOpenBtn" aria-label="履歴を開く" aria-haspopup="dialog">
       <span aria-hidden="true">🕘</span>
     </button>
   </header>
 
-  <main>
-    <p class="install-hint" id="installHint">
-      ホーム画面に追加すると次回からアプリのように開けます。
-      <button type="button" id="installBtn" hidden>追加する</button>
-      <span id="iosInstallHint" hidden>共有ボタン<span aria-hidden="true">□↑</span>から「ホーム画面に追加」を選んでください。</span>
-    </p>
+  <p class="install-hint" id="installHint">
+    <span>ホーム画面に追加すると次回からアプリのように開けます。</span>
+    <button type="button" id="installBtn" hidden>追加する</button>
+    <span id="iosInstallHint" hidden>共有ボタン<span aria-hidden="true">□↑</span>から「ホーム画面に追加」を選んでください。</span>
+    <button type="button" id="installHintClose" aria-label="閉じる">✕</button>
+  </p>
 
+  <main>
     <section class="mode-toggle">
       <label class="switch-row" for="multipackToggle">
-        <span class="label-text">まとめ買いモード</span>
+        <span class="label-text">まとめ買いモード(入り数で計算)</span>
         <span class="switch">
           <input type="checkbox" id="multipackToggle" />
           <span class="switch-track"><span class="switch-thumb"></span></span>
         </span>
       </label>
-      <p class="mode-hint">トイレットペーパーやティッシュなど、1個あたりの容量 × 入っている数で計算したいときはオンにしてください。</p>
     </section>
-
-    <p class="qty-hint">
-      容量は「500g」「1.5kg」のように単位を続けて入力すると、単位欄が自動で切り替わります。数字だけ入力したときは単位欄から選んでください。
-    </p>
 
     <section class="cards" id="cards">
       <!-- 商品A -->
@@ -64,20 +57,15 @@
         </div>
 
         <div class="field-row">
-          <div class="field">
-            <label for="A-price">価格</label>
-            <div class="input-with-prefix">
-              <span class="prefix" aria-hidden="true">¥</span>
-              <input type="number" id="A-price" class="price-input" inputmode="decimal" min="0" step="0.01" placeholder="0" />
-            </div>
+          <div class="field" style="flex: 1">
+            <label for="A-price">価格(円)</label>
+            <input type="number" id="A-price" class="price-input" inputmode="decimal" min="0" step="0.01" placeholder="0" />
           </div>
-        </div>
-        <div class="field-row">
-          <div class="field" style="flex: 1.4">
+          <div class="field" style="flex: 1.15">
             <label for="A-qty">容量</label>
             <input type="text" id="A-qty" autocomplete="off" autocapitalize="off" placeholder="例: 500g" />
           </div>
-          <div class="field" style="flex: 1">
+          <div class="field" style="flex: 0.85">
             <label for="A-unit">単位</label>
             <select id="A-unit">
               <option value="">選択</option>
@@ -115,18 +103,14 @@
           <span class="value">—</span>
         </div>
 
-        <button type="button" class="memo-toggle" id="A-memoToggle" aria-expanded="false">
-          メモを追加(保存時に記録されます)
-        </button>
+        <div class="card-actions">
+          <button type="button" class="memo-toggle" id="A-memoToggle" aria-expanded="false">＋メモ</button>
+          <button type="button" class="btn btn-primary btn-compact" id="A-save" disabled>記録する</button>
+        </div>
         <div class="memo-wrap" id="A-memoWrap">
           <div>
             <textarea id="A-memo" rows="2" placeholder="購入店・セール情報など"></textarea>
           </div>
-        </div>
-
-        <div class="card-actions">
-          <span></span>
-          <button type="button" class="btn btn-primary" id="A-save" disabled>この内容を記録する</button>
         </div>
       </article>
 
@@ -139,20 +123,15 @@
         </div>
 
         <div class="field-row">
-          <div class="field">
-            <label for="B-price">価格</label>
-            <div class="input-with-prefix">
-              <span class="prefix" aria-hidden="true">¥</span>
-              <input type="number" id="B-price" class="price-input" inputmode="decimal" min="0" step="0.01" placeholder="0" />
-            </div>
+          <div class="field" style="flex: 1">
+            <label for="B-price">価格(円)</label>
+            <input type="number" id="B-price" class="price-input" inputmode="decimal" min="0" step="0.01" placeholder="0" />
           </div>
-        </div>
-        <div class="field-row">
-          <div class="field" style="flex: 1.4">
+          <div class="field" style="flex: 1.15">
             <label for="B-qty">容量</label>
             <input type="text" id="B-qty" autocomplete="off" autocapitalize="off" placeholder="例: 500g" />
           </div>
-          <div class="field" style="flex: 1">
+          <div class="field" style="flex: 0.85">
             <label for="B-unit">単位</label>
             <select id="B-unit">
               <option value="">選択</option>
@@ -190,18 +169,14 @@
           <span class="value">—</span>
         </div>
 
-        <button type="button" class="memo-toggle" id="B-memoToggle" aria-expanded="false">
-          メモを追加(保存時に記録されます)
-        </button>
+        <div class="card-actions">
+          <button type="button" class="memo-toggle" id="B-memoToggle" aria-expanded="false">＋メモ</button>
+          <button type="button" class="btn btn-primary btn-compact" id="B-save" disabled>記録する</button>
+        </div>
         <div class="memo-wrap" id="B-memoWrap">
           <div>
             <textarea id="B-memo" rows="2" placeholder="購入店・セール情報など"></textarea>
           </div>
-        </div>
-
-        <div class="card-actions">
-          <span></span>
-          <button type="button" class="btn btn-primary" id="B-save" disabled>この内容を記録する</button>
         </div>
       </article>
     </section>

@@ -397,6 +397,9 @@ function loadRecordInto(prefix, record) {
 const installHint = $('installHint');
 const installBtn = $('installBtn');
 const iosInstallHint = $('iosInstallHint');
+const installHintClose = $('installHintClose');
+
+const INSTALL_DISMISS_KEY = 'otokuChecker.installHintDismissed';
 
 function isStandalone() {
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
@@ -404,12 +407,32 @@ function isStandalone() {
 function isIos() {
   return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
 }
+function isInstallHintDismissed() {
+  try {
+    return localStorage.getItem(INSTALL_DISMISS_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function hideInstallHint(remember) {
+  installHint.classList.remove('show');
+  if (remember) {
+    try {
+      localStorage.setItem(INSTALL_DISMISS_KEY, '1');
+    } catch {
+      /* 保存できなくても致命的ではないので無視する */
+    }
+  }
+}
+
+installHintClose.addEventListener('click', () => hideInstallHint(true));
 
 let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  if (!isStandalone()) {
+  if (!isStandalone() && !isInstallHintDismissed()) {
     installHint.classList.add('show');
     installBtn.hidden = false;
   }
@@ -420,14 +443,14 @@ installBtn.addEventListener('click', async () => {
   deferredPrompt.prompt();
   await deferredPrompt.userChoice;
   deferredPrompt = null;
-  installHint.classList.remove('show');
+  hideInstallHint(false);
 });
 
 window.addEventListener('appinstalled', () => {
-  installHint.classList.remove('show');
+  hideInstallHint(false);
 });
 
-if (!isStandalone() && isIos()) {
+if (!isStandalone() && isIos() && !isInstallHintDismissed()) {
   installHint.classList.add('show');
   iosInstallHint.hidden = false;
 }
