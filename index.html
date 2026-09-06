@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>おとくチェック</title>
+<meta name="description" content="価格と容量から単価を計算して、2つの商品のどちらがお得かをその場で比較できるアプリ。まとめ買い商品や過去の記録の比較にも対応。" />
+
+<link rel="manifest" href="./manifest.json" />
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
+<link rel="apple-touch-icon" href="./icons/icon-180.png" />
+
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f4f7" />
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="おとくチェック" />
+
+<link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <div>
+      <h1>おとくチェック</h1>
+      <p class="tagline">価格と容量からどっちがお得かすぐ比較</p>
+    </div>
+    <button type="button" class="icon-btn" id="historyOpenBtn" aria-label="履歴を開く" aria-haspopup="dialog">
+      <span aria-hidden="true">🕘</span>
+    </button>
+  </header>
+
+  <main>
+    <p class="install-hint" id="installHint">
+      ホーム画面に追加すると次回からアプリのように開けます。
+      <button type="button" id="installBtn" hidden>追加する</button>
+      <span id="iosInstallHint" hidden>共有ボタン<span aria-hidden="true">□↑</span>から「ホーム画面に追加」を選んでください。</span>
+    </p>
+
+    <section class="mode-toggle">
+      <label class="switch-row" for="multipackToggle">
+        <span class="label-text">まとめ買いモード</span>
+        <span class="switch">
+          <input type="checkbox" id="multipackToggle" />
+          <span class="switch-track"><span class="switch-thumb"></span></span>
+        </span>
+      </label>
+      <p class="mode-hint">トイレットペーパーやティッシュなど、1個あたりの容量 × 入っている数で計算したいときはオンにしてください。</p>
+    </section>
+
+    <section class="cards" id="cards">
+      <!-- 商品A -->
+      <article class="item-card" data-item="A">
+        <div class="card-head">
+          <span class="item-badge">A</span>
+          <input type="text" class="name-input" id="A-name" placeholder="商品名(任意)" maxlength="60" />
+          <span class="good-badge"><span aria-hidden="true">◎</span>お得</span>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="A-price">価格</label>
+            <div class="input-with-prefix">
+              <span class="prefix" aria-hidden="true">¥</span>
+              <input type="number" id="A-price" class="price-input" inputmode="decimal" min="0" step="0.01" placeholder="0" />
+            </div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field" style="flex: 1.4">
+            <label for="A-qty">容量</label>
+            <input type="number" id="A-qty" inputmode="decimal" min="0" step="0.01" placeholder="0" />
+          </div>
+          <div class="field" style="flex: 1">
+            <label for="A-unit">単位</label>
+            <select id="A-unit">
+              <option value="">選択</option>
+              <option value="g">g</option>
+              <option value="kg">kg</option>
+              <option value="ml">ml</option>
+              <option value="L">L</option>
+              <option value="cm">cm</option>
+              <option value="m">m</option>
+              <option value="個">個</option>
+              <option value="枚">枚</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="packrow">
+          <div>
+            <div class="field-row">
+              <div class="field" style="flex: 1.3">
+                <label for="A-packCount">パック数(入り数)</label>
+                <input type="number" id="A-packCount" inputmode="numeric" min="1" step="1" placeholder="1" />
+              </div>
+              <div class="field" style="flex: 0.9">
+                <label for="A-packUnit">単位</label>
+                <select id="A-packUnit">
+                  <option value="個">個</option>
+                  <option value="箱">箱</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="unit-price-preview" id="A-preview" aria-live="polite">
+          <span class="value">—</span>
+        </div>
+
+        <button type="button" class="memo-toggle" id="A-memoToggle" aria-expanded="false">
+          メモを追加(保存時に記録されます)
+        </button>
+        <div class="memo-wrap" id="A-memoWrap">
+          <div>
+            <textarea id="A-memo" rows="2" placeholder="購入店・セール情報など"></textarea>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <span></span>
+          <button type="button" class="btn btn-primary" id="A-save" disabled>この内容を記録する</button>
+        </div>
+      </article>
+
+      <!-- 商品B -->
+      <article class="item-card" data-item="B">
+        <div class="card-head">
+          <span class="item-badge">B</span>
+          <input type="text" class="name-input" id="B-name" placeholder="商品名(任意)" maxlength="60" />
+          <span class="good-badge"><span aria-hidden="true">◎</span>お得</span>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="B-price">価格</label>
+            <div class="input-with-prefix">
+              <span class="prefix" aria-hidden="true">¥</span>
+              <input type="number" id="B-price" class="price-input" inputmode="decimal" min="0" step="0.01" placeholder="0" />
+            </div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field" style="flex: 1.4">
+            <label for="B-qty">容量</label>
+            <input type="number" id="B-qty" inputmode="decimal" min="0" step="0.01" placeholder="0" />
+          </div>
+          <div class="field" style="flex: 1">
+            <label for="B-unit">単位</label>
+            <select id="B-unit">
+              <option value="">選択</option>
+              <option value="g">g</option>
+              <option value="kg">kg</option>
+              <option value="ml">ml</option>
+              <option value="L">L</option>
+              <option value="cm">cm</option>
+              <option value="m">m</option>
+              <option value="個">個</option>
+              <option value="枚">枚</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="packrow">
+          <div>
+            <div class="field-row">
+              <div class="field" style="flex: 1.3">
+                <label for="B-packCount">パック数(入り数)</label>
+                <input type="number" id="B-packCount" inputmode="numeric" min="1" step="1" placeholder="1" />
+              </div>
+              <div class="field" style="flex: 0.9">
+                <label for="B-packUnit">単位</label>
+                <select id="B-packUnit">
+                  <option value="個">個</option>
+                  <option value="箱">箱</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="unit-price-preview" id="B-preview" aria-live="polite">
+          <span class="value">—</span>
+        </div>
+
+        <button type="button" class="memo-toggle" id="B-memoToggle" aria-expanded="false">
+          メモを追加(保存時に記録されます)
+        </button>
+        <div class="memo-wrap" id="B-memoWrap">
+          <div>
+            <textarea id="B-memo" rows="2" placeholder="購入店・セール情報など"></textarea>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <span></span>
+          <button type="button" class="btn btn-primary" id="B-save" disabled>この内容を記録する</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="result-bar status-neutral" id="resultBar" aria-live="polite">
+    <span class="headline" id="resultHeadline">価格と容量を入力すると、ここに比較結果が出ます</span>
+  </footer>
+</div>
+
+<div class="sheet-backdrop" id="sheetBackdrop"></div>
+<div class="sheet" id="historySheet" role="dialog" aria-modal="true" aria-label="記録の履歴" aria-hidden="true">
+  <div class="sheet-handle" id="sheetHandle" aria-hidden="true"></div>
+  <div class="sheet-header">
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+      <h2>履歴</h2>
+      <button type="button" class="icon-btn" id="historyCloseBtn" aria-label="履歴を閉じる" style="width:36px;height:36px;">✕</button>
+    </div>
+    <div class="sheet-controls">
+      <input type="search" id="historySearch" placeholder="商品名・メモで検索" aria-label="商品名・メモで検索" />
+      <select id="historySort" aria-label="並び替え">
+        <option value="new">新しい順</option>
+        <option value="cheap">単価が安い順</option>
+      </select>
+    </div>
+  </div>
+  <ul class="history-list" id="historyList"></ul>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>

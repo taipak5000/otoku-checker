@@ -1,0 +1,22 @@
+{
+  "name": "おとくチェック",
+  "short_name": "おとくチェック",
+  "description": "価格と容量から単価を計算して、2つの商品のどちらがお得かをその場で比較できるアプリ。まとめ買い商品や購入履歴の比較にも対応。",
+  "id": "/",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#f4f4f7",
+  "theme_color": "#f4f4f7",
+  "orientation": "portrait-primary",
+  "lang": "ja",
+  "dir": "ltr",
+  "categories": ["shopping", "utilities", "lifestyle"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

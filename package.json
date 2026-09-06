@@ -1,0 +1,15 @@
+{
+  "name": "otoku-checker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "価格と容量から単価を計算して、2つの商品のどちらがお得かをその場で比較できるPWA。",
+  "scripts": {
+    "test": "node test/calc.test.mjs && node test/storage.test.mjs",
+    "test:e2e": "node test/e2e.mjs",
+    "serve": "python3 -m http.server 8000"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.0"
+  }
+}
