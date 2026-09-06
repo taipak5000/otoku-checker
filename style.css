@@ -280,6 +280,12 @@ main {
   color: var(--text-secondary);
 }
 
+.qty-hint {
+  margin: 0 2px 14px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
 /* ---------- 商品カード ---------- */
 
 .cards {
@@ -428,7 +434,8 @@ textarea {
   font-size: 1rem;
 }
 
-input[type="number"] {
+input[type="number"],
+input[type="text"] {
   font-variant-numeric: tabular-nums;
 }
 

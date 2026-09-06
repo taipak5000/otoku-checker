@@ -6,6 +6,7 @@ import {
   effectivePackCount,
   totalBaseQuantity,
   categoryOf,
+  parseQuantityInput,
 } from '../calc.js';
 
 let pass = 0;
@@ -184,6 +185,56 @@ test('まとめ買い商品同士の比較: パック数を考慮しても正し
   const c = compare(a, b);
   assert.equal(c.status, 'ok');
   assert.equal(c.cheaper, 'A');
+});
+
+console.log('parseQuantityInput() — 容量欄への単位こみ入力の自動認識');
+test('"500g" -> 数値と単位を分離できる', () => {
+  const r = parseQuantityInput('500g');
+  assert.equal(r.value, 500);
+  assert.equal(r.unit, 'g');
+});
+test('"1.5kg" -> 小数もOK', () => {
+  const r = parseQuantityInput('1.5kg');
+  assert.equal(r.value, 1.5);
+  assert.equal(r.unit, 'kg');
+});
+test('"2L" / "2l" -> どちらも L と認識', () => {
+  assert.equal(parseQuantityInput('2L').unit, 'L');
+  assert.equal(parseQuantityInput('2l').unit, 'L');
+});
+test('"6個" "200枚" -> 日本語の単位も認識', () => {
+  assert.equal(parseQuantityInput('6個').unit, '個');
+  assert.equal(parseQuantityInput('200枚').unit, '枚');
+});
+test('"500グラム" のような読みでも認識する', () => {
+  assert.equal(parseQuantityInput('500グラム').unit, 'g');
+  assert.equal(parseQuantityInput('1キロ').unit, 'kg');
+});
+test('数字と単位の間にスペースがあってもよい', () => {
+  const r = parseQuantityInput(' 55 m ');
+  assert.equal(r.value, 55);
+  assert.equal(r.unit, 'm');
+});
+test('全角数字・全角英字でも半角に揃えて認識する', () => {
+  const r = parseQuantityInput('５００ｇ');
+  assert.equal(r.value, 500);
+  assert.equal(r.unit, 'g');
+});
+test('単位が無い数字だけの入力は unit:null (プルダウン側の値を使う想定)', () => {
+  const r = parseQuantityInput('500');
+  assert.equal(r.value, 500);
+  assert.equal(r.unit, null);
+});
+test('認識できない単位は unrecognizedSuffix に入り、unitはnullになる', () => {
+  const r = parseQuantityInput('500xyz');
+  assert.equal(r.value, 500);
+  assert.equal(r.unit, null);
+  assert.equal(r.unrecognizedSuffix, 'xyz');
+});
+test('空文字/nullは value:NaN', () => {
+  assert.ok(Number.isNaN(parseQuantityInput('').value));
+  assert.ok(Number.isNaN(parseQuantityInput(null).value));
+  assert.ok(Number.isNaN(parseQuantityInput('abc').value));
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

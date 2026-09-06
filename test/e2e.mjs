@@ -58,6 +58,44 @@ await step('2商品を入力すると単価が計算され、安い方がハイ�
   assert.equal(previewA.trim(), '158');
 });
 
+await step('容量欄に単位ごと入力すると、単位プルダウンが自動で切り替わる', async () => {
+  await page.fill('#A-qty', '2kg');
+  await page.waitForTimeout(50);
+  const unitValue = await page.inputValue('#A-unit');
+  assert.equal(unitValue, 'kg');
+  // A: 1580円 / 2kg = 100gあたり79円 (formatYenは10〜99.999円の範囲を小数1桁で表示する)
+  const previewA = await page.locator('#A-preview .value').textContent();
+  assert.equal(previewA.trim(), '79.0');
+});
+
+await step('日本語の単位表記(グラム等)でも自動認識する', async () => {
+  await page.fill('#B-qty', '200グラム');
+  await page.waitForTimeout(50);
+  const unitValue = await page.inputValue('#B-unit');
+  assert.equal(unitValue, 'g');
+});
+
+await step('単位プルダウンを手動で選び直すと、容量欄の表記が数値だけに整う', async () => {
+  await page.selectOption('#A-unit', 'g');
+  await page.waitForTimeout(50);
+  const qtyValue = await page.inputValue('#A-qty');
+  assert.equal(qtyValue, '2'); // "2kg" -> "2" (単位はプルダウン側のgが優先される)
+  // 1580円 / 2g という極端な値になるので、念のため元の状態に戻しておく
+  await page.fill('#A-qty', '1kg');
+  await page.waitForTimeout(50);
+});
+
+await step('認識できない単位を入力すると、その表記を含むメッセージが出る', async () => {
+  await page.selectOption('#B-unit', ''); // 単位を未選択に戻す
+  await page.fill('#B-qty', '500xyz');
+  await page.waitForTimeout(50);
+  const previewB = await page.locator('#B-preview .value').textContent();
+  assert.match(previewB, /xyz/);
+  // 後続のテストのために元に戻す
+  await page.fill('#B-qty', '100g');
+  await page.waitForTimeout(50);
+});
+
 await step('単位のカテゴリーが違うと警告になる', async () => {
   await page.selectOption('#B-unit', 'ml');
   await page.waitForTimeout(50);

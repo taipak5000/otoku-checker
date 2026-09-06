@@ -1,6 +1,6 @@
 // app.js — 画面の配線(DOM操作)。計算は calc.js、保存は storage.js、
 // 履歴シートのドラッグ演出は motion.js に委譲する。
-import { unitPriceResult, compare, CATEGORY_LABEL } from './calc.js';
+import { unitPriceResult, compare, CATEGORY_LABEL, parseQuantityInput } from './calc.js';
 import { addRecord, deleteRecord, queryRecords } from './storage.js';
 import { makeDraggableSheet } from './motion.js';
 
@@ -50,16 +50,36 @@ const ERROR_MESSAGE = {
  * ---------------------------------------------------------------------- */
 
 function readItem(prefix) {
+  const qtyParsed = parseQuantityInput($(`${prefix}-qty`).value);
   return {
     name: $(`${prefix}-name`).value.trim(),
     memo: $(`${prefix}-memo`).value.trim(),
     price: $(`${prefix}-price`).value,
-    qty: $(`${prefix}-qty`).value,
+    qty: Number.isFinite(qtyParsed.value) ? qtyParsed.value : '',
     unit: $(`${prefix}-unit`).value,
     multipack: multipackToggle.checked,
     packCount: $(`${prefix}-packCount`).value,
     packUnit: $(`${prefix}-packUnit`).value,
   };
+}
+
+// 容量欄に「500g」のように単位ごと入力されていたら、単位プルダウンを自動で合わせる。
+// 単位が読み取れない(数字だけ、または認識できない表記)ときはプルダウンの現在値のまま。
+function syncUnitFromQtyText(prefix) {
+  const parsed = parseQuantityInput($(`${prefix}-qty`).value);
+  if (parsed.unit) {
+    $(`${prefix}-unit`).value = parsed.unit;
+  }
+}
+
+// 単位プルダウンを手動で選び直したときは、容量欄のテキストを数値だけに整えて
+// 「表示は g のままなのに kg で計算されている」ような食い違いが起きないようにする。
+function stripUnitSuffixFromQtyText(prefix) {
+  const qtyEl = $(`${prefix}-qty`);
+  const parsed = parseQuantityInput(qtyEl.value);
+  if (Number.isFinite(parsed.value)) {
+    qtyEl.value = String(parsed.value);
+  }
 }
 
 function applyMultipackClass() {
@@ -84,7 +104,15 @@ function renderPreview(prefix, res) {
     el.innerHTML = '';
     const value = document.createElement('span');
     value.className = 'value';
-    value.textContent = ERROR_MESSAGE[res.error] || '入力してください';
+    if (res.error === 'unit') {
+      // 単位が定まらない原因が「認識できない表記」なら、その表記を具体的に伝える
+      const qtyParsed = parseQuantityInput($(`${prefix}-qty`).value);
+      value.textContent = qtyParsed.unrecognizedSuffix
+        ? `単位「${qtyParsed.unrecognizedSuffix}」は認識できません`
+        : ERROR_MESSAGE.unit;
+    } else {
+      value.textContent = ERROR_MESSAGE[res.error] || '入力してください';
+    }
     el.append(value);
   }
 }
@@ -134,11 +162,21 @@ function update() {
  * ---------------------------------------------------------------------- */
 
 ['A', 'B'].forEach((prefix) => {
-  ['name', 'price', 'qty', 'packCount', 'memo'].forEach((field) => {
+  ['name', 'price', 'packCount', 'memo'].forEach((field) => {
     on($(`${prefix}-${field}`), 'input', update);
   });
-  ['unit', 'packUnit'].forEach((field) => {
-    on($(`${prefix}-${field}`), 'change input', update);
+  on($(`${prefix}-packUnit`), 'change input', update);
+
+  // 容量欄: 「500g」のように単位ごと入力されたら単位プルダウンを自動で合わせる
+  on($(`${prefix}-qty`), 'input', () => {
+    syncUnitFromQtyText(prefix);
+    update();
+  });
+
+  // 単位プルダウン: 手動で選び直したときは容量欄の表記を数値だけに整える
+  on($(`${prefix}-unit`), 'change', () => {
+    stripUnitSuffixFromQtyText(prefix);
+    update();
   });
 });
 

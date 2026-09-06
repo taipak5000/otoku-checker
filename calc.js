@@ -55,6 +55,66 @@ export function categoryOf(unit) {
   return UNIT_CATEGORY[unit] ?? null;
 }
 
+// 「500g」「1.5kg」のように容量欄へ単位ごと入力したときに、
+// わざわざ単位プルダウンを触らなくても自動認識できるようにするための表記ゆれ表。
+// (プルダウンは手動で選び直したいときのために残してある)
+const UNIT_ALIASES = new Map(
+  Object.entries({
+    g: 'g',
+    グラム: 'g',
+    kg: 'kg',
+    キロ: 'kg',
+    キログラム: 'kg',
+    ml: 'ml',
+    ミリリットル: 'ml',
+    ミリ: 'ml',
+    l: 'L',
+    リットル: 'L',
+    cm: 'cm',
+    センチ: 'cm',
+    センチメートル: 'cm',
+    m: 'm',
+    メートル: 'm',
+    個: '個',
+    こ: '個',
+    枚: '枚',
+    まい: '枚',
+  })
+);
+
+// 全角の数字・英字・スペースを半角に揃える(日本語入力の後でも認識できるように)
+function toHalfWidth(str) {
+  return str
+    .replace(/[０-９Ａ-Ｚａ-ｚ]/g, (ch) =>
+      String.fromCharCode(ch.charCodeAt(0) - 0xfee0)
+    )
+    .replace(/　/g, ' ');
+}
+
+/**
+ * 容量欄の入力を「数値」と「単位」に分解する。
+ * 例: "500g" -> { value: 500, unit: 'g' }
+ *     "1.5kg" -> { value: 1.5, unit: 'kg' }
+ *     "500"   -> { value: 500, unit: null }        (単位なし。プルダウンの値を使う)
+ *     "500xyz"-> { value: 500, unit: null, unrecognizedSuffix: 'xyz' }
+ *     ""      -> { value: NaN, unit: null }
+ */
+export function parseQuantityInput(raw) {
+  if (raw == null) return { value: NaN, unit: null };
+  const text = toHalfWidth(String(raw)).trim();
+  if (text === '') return { value: NaN, unit: null };
+
+  const match = text.match(/^([+-]?\d+(?:\.\d+)?)\s*(.*)$/);
+  if (!match) return { value: NaN, unit: null };
+
+  const value = Number(match[1]);
+  const suffix = match[2].trim();
+  if (!suffix) return { value, unit: null };
+
+  const unit = UNIT_ALIASES.get(suffix.toLowerCase()) ?? null;
+  return unit ? { value, unit } : { value, unit: null, unrecognizedSuffix: suffix };
+}
+
 function toNumber(v) {
   if (v === '' || v === null || v === undefined) return NaN;
   const n = typeof v === 'number' ? v : Number(v);
